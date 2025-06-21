@@ -1,1 +1,1 @@
-# debezium-poc
+# Debezium POC

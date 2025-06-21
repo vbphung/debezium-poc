@@ -11,17 +11,17 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: debezium-poc-mssql
-    environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "yourStrong(!)Password"
-      MSSQL_PID: Developer
-    ports:
-      - 1433:1433
-    volumes:
-      - mssql_data:/var/opt/mssql
+  # mssql:
+  #   image: mcr.microsoft.com/mssql/server:2022-latest
+  #   container_name: debezium-poc-mssql
+  #   environment:
+  #     ACCEPT_EULA: "Y"
+  #     MSSQL_SA_PASSWORD: "yourStrong(!)Password"
+  #     MSSQL_PID: Developer
+  #   ports:
+  #     - 1433:1433
+  #   volumes:
+  #     - mssql_data:/var/opt/mssql
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.10
@@ -48,6 +48,27 @@ services:
     depends_on:
       - zookeeper
 
+  connect:
+    image: quay.io/debezium/connect:3.1
+    container_name: debezium-poc-connect
+    ports:
+      - 8083:8083
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      STATUS_STORAGE_TOPIC: connect_statuses
+      # KEY_CONVERTER_SCHEMAS_ENABLE: false
+      # VALUE_CONVERTER_SCHEMAS_ENABLE: false
+      # KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      # VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      # CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      # CONNECT_PLUGIN_PATH: /kafka/connect,/debezium
+    depends_on:
+      - postgres
+      - kafka
+
 volumes:
   postgres_data:
-  mssql_data:
+  # mssql_data:
