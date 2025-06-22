@@ -23,7 +23,7 @@ def create_conn(tables, publication):
         },
     }
 
-    print(f"CREATE CONNECTOR: {payload}")
+    print(f"==> CREATE CONNECTOR: {payload}")
 
     try:
         resp = requests.post(
@@ -33,7 +33,7 @@ def create_conn(tables, publication):
         )
         print(f"==> SUCCESSFUL: {resp.text}\n")
     except requests.RequestException as exception:
-        print(f"==> FAILED:   {exception}\n")
+        print(f"==> FAILED: {exception}\n")
 
 
 if __name__ == "__main__":
