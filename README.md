@@ -17,6 +17,7 @@ ALTER SYSTEM SET max_wal_senders = 10;
 4. Restart Postgres
 5. ```sql
    CREATE ROLE replicationuser WITH LOGIN REPLICATION PASSWORD 'replicationpassword';
+   GRANT USAGE ON SCHEMA business TO replicationuser;
    ```
 6. Create publications for groups of closely related tables (or a single table)
 7. Grant `replicationuser` user `SELECT` privilege on all above tables
@@ -27,12 +28,16 @@ GRANT SELECT ON business.accounts TO replicationuser;
 GRANT SELECT ON business.transactions TO replicationuser;
 ```
 
-8. Restart Postgres
-9. ```shell
-   python3 ./postgres_create_connection.py
-   ```
+8. (Optional) If you need to use the previous state of rows when processing change events, let's make the tables `REPLICA IDENTITY FULL`
 
-   (You might want to change something in `postgres_create_connection.py` before running)
+```sql
+ALTER TABLE business.users REPLICA IDENTITY FULL;
+```
+
+9. Restart Postgres
+10. ```shell
+    python3 ./postgres_create_connection.py
+    ```
 
 ## Then?
 
@@ -42,7 +47,7 @@ GRANT SELECT ON business.transactions TO replicationuser;
 - With some missing topics, after I tried to insert some data into its table, the topic was created, but some weren't
 - But finally, after scrolling Instagram for 5m, all missing topics were created. So did I need to insert more data to trigger the topic creation?
 
-> **Answer:** Yes, just wait, the miracle will come
+> **Answer:** No, no need to do anything more, just wait and the miracle will come.
 
 ### To list all topics
 
@@ -61,4 +66,4 @@ docker exec -it debezium-poc-kafka kafka-console-consumer \
   --from-beginning
 ```
 
-(Remove `--from-beginning` if you don't want to go from beginning)
+(Remove `--from-beginning` if you wanna go from now)
