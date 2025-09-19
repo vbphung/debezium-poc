@@ -1,21 +1,20 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 
 namespace debezium_poc
 {
     [Table("users", Schema = "business")]
-    class User
+    public class User
     {
         [Key]
         [Column("id")]
         public int Id { get; set; }
 
         [Column("name")]
-        public string Name { get; set; } = "";
+        public string Name { get; set; } = string.Empty;
 
         [Column("email")]
         public string? Email { get; set; }
@@ -25,12 +24,6 @@ namespace debezium_poc
 
         [NotMapped]
         public DateTime CreatedAt { get; set; }
-    }
-
-    class BusinessDbContext(DbContextOptions<BusinessDbContext> options)
-        : DbContext(options)
-    {
-        public DbSet<User> Users => Set<User>();
     }
 
     class UserService(BusinessDbContext sourceDb) : IHostedService
@@ -108,8 +101,7 @@ namespace debezium_poc
 ) VALUES {string.Join(",\n", insertedRows)}
 ON CONFLICT ({string.Join(",", keyColumns)}) 
 DO UPDATE SET {string.Join(",\n", setClauses)}
-WHERE {string.Join("\nOR ", whereClauses)};
-";
+WHERE {string.Join("\nOR ", whereClauses)};";
         }
 
         private static string? FormatValue(object? value)

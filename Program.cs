@@ -2,15 +2,30 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 var builder = Host.CreateDefaultBuilder(args);
 
-builder.ConfigureServices(services =>
-{
-    services.AddDbContext<BusinessDbContext>(options =>
-        options.UseNpgsql("Host=localhost;Port=5432;Username=testuser;Password=testpassword;Database=postgres"));
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .CreateLogger();
 
-    services.AddHostedService<UserService>();
-});
+builder = builder
+    .UseSerilog((context, services, configuration) =>
+    {
+        configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services);
+    })
+    .ConfigureServices(services =>
+    {
+        services.AddDbContext<BusinessDbContext>(options =>
+            options.UseNpgsql(BusinessDbContextFactory.CONN_STR));
+
+        services.AddHostedService<UserService>();
+        services.AddHostedService<BookService>();
+    });
 
 await builder.Build().RunAsync();
